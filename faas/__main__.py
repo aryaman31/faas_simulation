@@ -49,7 +49,7 @@ def results(times, coldStartRatios, lossRates):
 
 if __name__ == "__main__":
     data = np.loadtxt(sys.argv[1], skiprows=1, delimiter=',', dtype=int)
-
+    # data = data[:2, :]
     lambdas = data[:, 2] / time 
     service_rates = 1000 / data[:,1]
 

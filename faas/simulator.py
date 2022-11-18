@@ -12,6 +12,7 @@ def simulate(stopTime, arrival_rates, service_rates, alpha, mf, maxmemory):
     total = 0
     coldStarts = 0
     losses = 0
+    minimumIdleTime = 2
 
     now = 0 
     while now < stopTime:
@@ -24,7 +25,7 @@ def simulate(stopTime, arrival_rates, service_rates, alpha, mf, maxmemory):
         if mem_func_i != -1:
             if prints: print(f"Function {f} in memory")
             end_time, _ = memory[mem_func_i]
-            if end_time < now: # function is idle right now
+            if end_time + minimumIdleTime < now: # function is idle right now
                 if prints: print(f"Function {f} is idle. New end time assigned")
                 memory[mem_func_i] = (now + random.exponential(1 / service_rates[f - 1]), f) # set functions new end time to now + service time 
             else: # function not idle, so request is lost 
@@ -33,7 +34,7 @@ def simulate(stopTime, arrival_rates, service_rates, alpha, mf, maxmemory):
         else: # else remove oldest end time function and add f with new end time + load time 
             replace_i = earliestEndMemory(memory)
             if prints: print(f"Function {f} not in memory")
-            if memory[replace_i][0] < now: # can deallocate since function is idle 
+            if memory[replace_i][0] + minimumIdleTime < now: # can deallocate since function is idle 
                 coldStarts += 1
 
                 if prints: print(f"Function {f} added to memory succesfully")
@@ -49,8 +50,8 @@ def simulate(stopTime, arrival_rates, service_rates, alpha, mf, maxmemory):
 
         total += 1
         times.append(now)
-        coldStartRatios.append(coldStarts / (total - losses))
-        lossrates.append(losses / now)
+        coldStartRatios.append(coldStarts / total)
+        lossrates.append(losses / total)
 
     return times, coldStartRatios, lossrates
 
